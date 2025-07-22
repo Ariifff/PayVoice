@@ -1,0 +1,31 @@
+package com.arif.payvoice.mainpage
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import com.arif.payvoice.data.Transaction
+import com.arif.payvoice.data.TransactionRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+
+class HistoryViewModel(private val repository: TransactionRepository) : ViewModel() {
+    private val _transactions = MutableStateFlow<List<Transaction>>(emptyList())
+    val transactions: StateFlow<List<Transaction>> = _transactions
+
+    init {
+        viewModelScope.launch {
+            repository.allTransactions.collectLatest {
+                _transactions.value = it
+            }
+        }
+    }
+}
+
+class HistoryViewModelFactory(private val repository: TransactionRepository) :
+    ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        return HistoryViewModel(repository) as T
+    }
+}
