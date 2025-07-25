@@ -1,10 +1,12 @@
 package com.arif.payvoice.receiver
 
 import android.app.Notification
+import android.content.Context
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import com.arif.payvoice.util.TextSpeaker
+import com.arif.payvoice.util.getSelectedVoiceName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -13,7 +15,7 @@ import java.util.*
 class NotificationListener : NotificationListenerService() {
     private val paymentApps = mapOf(
         "net.one97.paytm" to "Paytm",
-        "com.google.android.apps.nbu.paisa.user" to "GPay",
+        "com.google.android.apps.nbu.paisa.user" to "Google Pay",
         "com.phonepe.app" to "PhonePe"
     )
 
@@ -23,7 +25,6 @@ class NotificationListener : NotificationListenerService() {
             val appName = paymentApps[pkg] ?: return
 
             val extras = sbn.notification.extras
-            // Get ALL possible text fields from notification
             val content = buildString {
                 extras.keySet().forEach { key ->
                     when (val value = extras.get(key)) {
@@ -34,15 +35,37 @@ class NotificationListener : NotificationListenerService() {
             }
 
             if (content.contains("Received", ignoreCase = true) ||
-                content.contains("Credited", ignoreCase = true)) {
+                content.contains("Credited", ignoreCase = true) ||
+                content.contains("paid you", ignoreCase = true)) {
 
                 extractAmount(content)?.let { amount ->
                     Log.d("PayVoice", "DETECTED: ₹$amount from $appName")
                     CoroutineScope(Dispatchers.Main).launch {
-                        TextSpeaker.speak(
-                            applicationContext,
-                            "Received ₹${"%.2f".format(amount)} via $appName"
-                        )
+                        val prefs = applicationContext.getSharedPreferences("Settings", Context.MODE_PRIVATE)
+                        val selectedLanguage = prefs.getString("selected_language", "English")
+                        val voiceName = applicationContext.getSelectedVoiceName()
+
+                        val message = when (selectedLanguage) {
+                            "Hindi" -> {
+                                if (amount % 1.0 == 0.0)
+                                    "$appName पर ${amount.toInt()} रुपए प्राप्त हुए"
+                                else
+                                    "$appName पर ${"%.2f".format(amount)} रुपए प्राप्त हुए"
+                            }
+                            else -> {
+                                val amountStr = if (amount % 1.0 == 0.0) {
+                                    if (amount.toInt() == 1) "1 rupee" else "${amount.toInt()} rupees"
+                                } else {
+                                    "%.2f rupees".format(amount)
+                                }
+                                "Received $appName payment of $amountStr"
+                            }
+                        }
+
+
+
+                            TextSpeaker.speak(applicationContext, message)
+
                     }
                 }
             }
@@ -51,7 +74,6 @@ class NotificationListener : NotificationListenerService() {
         }
     }
 
-    // Improved amount extraction
     private fun extractAmount(text: String): Double? {
         return Regex("""(?:₹|Rs\.?|INR)\D*(\d[\d,]*(?:\.\d{1,2})?)""")
             .find(text)

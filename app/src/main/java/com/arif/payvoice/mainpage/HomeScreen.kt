@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arif.payvoice.ui.theme.Blue
+import com.arif.payvoice.util.TextSpeaker
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,8 +71,12 @@ fun HomeScreen() {
             )
             Switch(
                 checked = isVoiceOn,
-                onCheckedChange = { isVoiceOn = it }
+                onCheckedChange = {
+                    isVoiceOn = it
+                    sharedPreferences.edit().putBoolean("voice_on", it).apply() //Save toggle state
+                }
             )
+
         }
 
         Text(
@@ -132,5 +137,33 @@ fun HomeScreen() {
             text = "Selected App: $selectedApp",
             style = MaterialTheme.typography.bodySmall.copy(color = Color.DarkGray)
         )
+        Spacer(modifier = Modifier.height(18.dp))
+        TestVoiceButton(context, isVoiceOn)
+    }
+}
+
+@Composable
+fun TestVoiceButton(context: Context, isVoiceOn: Boolean) {
+    Button(
+        onClick = {
+            if (!isVoiceOn) return@Button
+
+
+            val prefs = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
+            val selectedLanguage = prefs.getString("selected_language", "English")
+            val message = when (selectedLanguage) {
+                "Hindi" ->
+                        "Paytm पर 123 रुपए प्राप्त हुए"
+                else ->
+                     "Received Paytm payment of 123 rupees"
+            }
+
+            TextSpeaker.speak(context, message)
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Text("🔊 Test Voice Output")
     }
 }
