@@ -13,9 +13,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.arif.payvoice.accessories.Routes
+import com.arif.payvoice.starter.ForgotPasswordScreen
 import com.arif.payvoice.starter.LoginScreen
 import com.arif.payvoice.starter.SignUpScreen
 import com.arif.payvoice.starter.SplashScreen
+import com.arif.payvoice.starter.VerifyEmailScreen
 import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
@@ -65,11 +67,15 @@ fun AppNavHost() {
                 },
                 onSignupClick = {
                     navController.navigate("signup")
+                },
+                onForgotClick = {
+                    navController.navigate("forgotpassword")
                 }
             )
         }
         composable(Routes.SignUp){
             SignUpScreen(
+                navController = navController,
                 onSignUpClick = {
                     // do signup
                 },
@@ -78,6 +84,23 @@ fun AppNavHost() {
                 }
             )
         }
+        composable(Routes.VerifyEmail) {
+            VerifyEmailScreen(
+                navController = navController,
+                onVerifyClick = { otp ->
+                    // Handle OTP verification here
+                    // You can also navigate to Main or show success
+                },
+                onResendClick = {
+                    // Handle resend OTP
+                }
+            )
+        }
+
+        composable(Routes.ForgotPassword){
+            ForgotPasswordScreen()
+        }
+
         composable(Routes.Main) {
             MainScreen()
         }
