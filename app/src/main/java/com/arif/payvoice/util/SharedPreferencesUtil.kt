@@ -22,3 +22,21 @@ fun Context.getToggleOn(): Boolean{
     return isVoiceOn
 }
 
+fun Context.getSelectedAppName(): String {
+    val prefs = getSharedPreferences("Settings", Context.MODE_PRIVATE)
+    return prefs.getString("upiApp", "Google Pay") ?: "Google Pay"
+}
+
+// ✅ Save permission_shown = true
+fun Context.setPermissionShown(shown: Boolean) {
+    val prefs = getSharedPreferences("Settings", Context.MODE_PRIVATE)
+    prefs.edit().putBoolean("permission_shown", shown).apply()
+}
+
+// ✅ Get permission_shown value
+fun Context.isPermissionShown(): Boolean {
+    val prefs = getSharedPreferences("Settings", Context.MODE_PRIVATE)
+    return prefs.getBoolean("permission_shown", false)
+}
+
+

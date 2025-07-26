@@ -14,11 +14,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.arif.payvoice.accessories.Routes
 import com.arif.payvoice.ui.theme.SoftGray
+import com.arif.payvoice.ui.theme.White
 
-@Preview
+
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(navController : NavController) {
     val context = LocalContext.current
     val voiceEnabled = remember { mutableStateOf(true) }
 
@@ -49,7 +52,7 @@ fun SettingsScreen() {
                 .padding(vertical = 8.dp),
             shape = RoundedCornerShape(12.dp),
             elevation = CardDefaults.cardElevation(4.dp),
-            colors = CardDefaults.cardColors(containerColor = SoftGray)
+            colors = CardDefaults.cardColors(containerColor = White)
         ) {
             Column(Modifier.padding(16.dp)) {
 
@@ -88,20 +91,13 @@ fun SettingsScreen() {
         }
 
         Spacer(modifier = Modifier.height(24.dp))
-        Text("Support & Feedback", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-
-        SettingsOption("FAQs") {}
-        SettingsOption("Report a Bug") {}
-        SettingsOption("Send Feedback") {}
-        SettingsOption("Contact Support") {}
-
-        Spacer(modifier = Modifier.height(24.dp))
         Text("About", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
 
         SettingsOption("App Version", subtitle = "v1.0") {}
         SettingsOption("Developed by", subtitle = "Arif") {}
-        SettingsOption("Privacy Policy") {}
-        SettingsOption("Terms and Conditions") {}
+        SettingsOption("FAQs") {navController.navigate("faq")}
+        SettingsOption("Privacy Policy") {navController.navigate("PrivacyPolicy")}
+        SettingsOption("Terms and Conditions") {navController.navigate("TermsAndConditions")}
     }
 }
 
@@ -112,7 +108,7 @@ fun SettingsOption(title: String, subtitle: String? = null, onClick: () -> Unit)
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .clickable { onClick() },
-        colors = CardDefaults.cardColors(containerColor = SoftGray),
+        colors = CardDefaults.cardColors(containerColor = White),
         shape = RoundedCornerShape(10.dp),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {

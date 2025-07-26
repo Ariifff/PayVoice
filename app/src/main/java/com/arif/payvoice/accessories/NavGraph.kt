@@ -2,8 +2,9 @@ package com.arif.payvoice.accessories
 
 object Routes {
     const val Splash = "splash"
-    const val Onboarding = "onboarding"
     const val Permission = "permission"
+    const val Login = "login"
+    const val SignUp = "signup"
     const val Main = "main"
 
     const val Home = "home"
@@ -12,4 +13,7 @@ object Routes {
     const val Profile = "profile"
 
     const val Faq ="faq"
+    const val PrivacyPolicy = "privacypolicy"
+    const val TermsAndConditions = "termsandconditions"
+
 }

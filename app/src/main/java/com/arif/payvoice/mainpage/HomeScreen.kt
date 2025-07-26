@@ -24,19 +24,25 @@ import com.arif.payvoice.util.TextSpeaker
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen() {
-    var isVoiceOn by remember { mutableStateOf(true) }
 
     val context = LocalContext.current
-    val sharedPreferences = context.getSharedPreferences("payvoice_prefs", Context.MODE_PRIVATE)
+    val prefs = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
 
-    val availableApps = listOf("GPay", "Paytm", "PhonePe")
+    var isVoiceOn by remember {
+        mutableStateOf(prefs.getBoolean("voice_on", true))
+    }
+
+    val availableApps = listOf("Google Pay", "Paytm", "PhonePe")
     var expanded by remember { mutableStateOf(false) }
     var selectedApp by remember {
-        mutableStateOf(sharedPreferences.getString("upiApp", "GPay") ?: "GPay")
+        mutableStateOf(prefs.getString("upiApp", availableApps.first()) ?: availableApps.first())
     }
 
     fun saveAppChoice(app: String) {
-        sharedPreferences.edit().putString("upiApp", app).apply()
+        prefs.edit().putString("upiApp", app).apply()
+    }
+    fun saveVoiceToggleState(state: Boolean) {
+        prefs.edit().putBoolean("voice_on", state).apply()
     }
 
     Column(
@@ -73,7 +79,7 @@ fun HomeScreen() {
                 checked = isVoiceOn,
                 onCheckedChange = {
                     isVoiceOn = it
-                    sharedPreferences.edit().putBoolean("voice_on", it).apply() //Save toggle state
+                    saveVoiceToggleState(it)
                 }
             )
 
@@ -124,7 +130,7 @@ fun HomeScreen() {
                         onClick = {
                             selectedApp = app
                             expanded = false
-                            saveAppChoice(app)
+                            prefs.edit().putString("upiApp",app).apply()
                         }
                     )
                 }
@@ -138,16 +144,14 @@ fun HomeScreen() {
             style = MaterialTheme.typography.bodySmall.copy(color = Color.DarkGray)
         )
         Spacer(modifier = Modifier.height(18.dp))
-        TestVoiceButton(context, isVoiceOn)
+        TestVoiceButton(context)
     }
 }
 
 @Composable
-fun TestVoiceButton(context: Context, isVoiceOn: Boolean) {
+fun TestVoiceButton(context: Context) {
     Button(
         onClick = {
-            if (!isVoiceOn) return@Button
-
 
             val prefs = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
             val selectedLanguage = prefs.getString("selected_language", "English")

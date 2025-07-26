@@ -1,10 +1,8 @@
-package com.arif.payvoice.mainpage
+package com.arif.payvoice.data
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.arif.payvoice.data.Transaction
-import com.arif.payvoice.data.TransactionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -19,6 +17,18 @@ class HistoryViewModel(private val repository: TransactionRepository) : ViewMode
             repository.allTransactions.collectLatest {
                 _transactions.value = it
             }
+        }
+    }
+
+    fun insert(transaction: Transaction) {
+        viewModelScope.launch {
+            repository.insert(transaction)
+        }
+    }
+
+    fun clearHistory() {
+        viewModelScope.launch {
+            repository.clearAll()
         }
     }
 }

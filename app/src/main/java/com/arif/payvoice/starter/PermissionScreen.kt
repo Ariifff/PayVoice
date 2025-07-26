@@ -23,7 +23,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,27 +33,22 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.arif.payvoice.accessories.PreferenceHelper
 import com.arif.payvoice.ui.theme.Indigo
 import com.arif.payvoice.ui.theme.Teal
 import com.arif.payvoice.ui.theme.White
+import com.arif.payvoice.util.setPermissionShown
 
 @Composable
 fun PermissionScreen(onGrantPermission: () -> Unit) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    // After permission is granted:
-    LaunchedEffect(Unit) {
-        PreferenceHelper.setOnboardingDone(context, true)
-        onGrantPermission()
-    }
-
     // Observe app lifecycle to detect return from settings screen
     DisposableEffect(Unit) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 if (isNotificationServiceEnabled(context)) {
+                    context.setPermissionShown(true)
                     onGrantPermission() // Navigate to home
                 }
             }
@@ -120,6 +114,7 @@ fun PermissionScreen(onGrantPermission: () -> Unit) {
         }
     }
 }
+
 
 fun isNotificationServiceEnabled(context: Context): Boolean {
     val pkgName = context.packageName

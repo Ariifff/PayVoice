@@ -25,8 +25,11 @@ import com.arif.payvoice.mainpage.ProfileScreen
 import com.arif.payvoice.accessories.Routes
 import com.arif.payvoice.mainpage.SettingsScreen
 import com.arif.payvoice.dataclass.BottomNavItem
-import com.arif.payvoice.mainpage.HistoryViewModel
-import com.arif.payvoice.mainpage.HistoryViewModelFactory
+import com.arif.payvoice.data.HistoryViewModel
+import com.arif.payvoice.data.HistoryViewModelFactory
+import com.arif.payvoice.mainpage.setting.FaqScreen
+import com.arif.payvoice.mainpage.setting.PrivacyPolicyScreen
+import com.arif.payvoice.mainpage.setting.TermsAndConditionsScreen
 
 
 val bottomNavItems = listOf(
@@ -75,9 +78,14 @@ fun MainScreen() {
         ) {
             composable(Routes.Home) { HomeScreen() }
             composable(Routes.History) { HistoryScreen(viewModel) }
-            composable(Routes.Settings) { SettingsScreen() }
+            composable(Routes.Settings) { SettingsScreen(navController) }
             composable(Routes.Profile) { ProfileScreen() }
-            
+            composable(Routes.Faq) { FaqScreen() }
+            composable(Routes.PrivacyPolicy) { PrivacyPolicyScreen(onBack = { navController.popBackStack() }) }
+            composable(Routes.TermsAndConditions) { TermsAndConditionsScreen(onBack = { navController.popBackStack() }) }
+
         }
+
     }
+
 }

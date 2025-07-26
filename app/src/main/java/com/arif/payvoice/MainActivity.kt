@@ -13,7 +13,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.arif.payvoice.accessories.Routes
-import com.arif.payvoice.starter.OnboardingScreen
+import com.arif.payvoice.starter.LoginScreen
+import com.arif.payvoice.starter.SignUpScreen
 import com.arif.payvoice.starter.SplashScreen
 import kotlinx.coroutines.delay
 
@@ -42,27 +43,38 @@ fun AppNavHost() {
     ) {
         composable(Routes.Splash) {
             SplashScreen(navController)
-            LaunchedEffect(Unit) {
-                delay(3000)
-                navController.navigate(Routes.Onboarding) {
-                    popUpTo(Routes.Splash) { inclusive = true }
-                }
-            }
         }
-        composable(Routes.Onboarding) {
-            OnboardingScreen(
-                onContinueClicked = {
-                    navController.navigate(Routes.Permission)
-                }
-            )
-        }
+
         composable(Routes.Permission) {
             PermissionScreen(
                 onGrantPermission = {
                     navController.navigate(Routes.Main) {
-                        popUpTo(Routes.Permission) { inclusive = true }
+                        popUpTo("permission") { inclusive = true }
 
                     }
+                }
+            )
+        }
+        composable(Routes.Login) {
+            LoginScreen(
+                onLoginClick = { email, password ->
+                    // do login
+                },
+                onGoogleClick = {
+                    // google login
+                },
+                onSignupClick = {
+                    navController.navigate("signup")
+                }
+            )
+        }
+        composable(Routes.SignUp){
+            SignUpScreen(
+                onSignUpClick = {
+                    // do signup
+                },
+                onLoginClick = {
+                    navController.navigate("login")
                 }
             )
         }

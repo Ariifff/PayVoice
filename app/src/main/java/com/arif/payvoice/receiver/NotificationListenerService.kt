@@ -1,12 +1,12 @@
 package com.arif.payvoice.receiver
 
-import android.app.Notification
+
 import android.content.Context
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import com.arif.payvoice.util.TextSpeaker
-import com.arif.payvoice.util.getSelectedVoiceName
+import com.arif.payvoice.util.getSelectedAppName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,6 +23,12 @@ class NotificationListener : NotificationListenerService() {
         try {
             val pkg = sbn.packageName
             val appName = paymentApps[pkg] ?: return
+
+            val selectedApp = applicationContext.getSelectedAppName()
+
+            // Skip notification if app doesn't match selected one
+            if (appName != selectedApp) return
+
 
             val extras = sbn.notification.extras
             val content = buildString {
@@ -43,7 +49,6 @@ class NotificationListener : NotificationListenerService() {
                     CoroutineScope(Dispatchers.Main).launch {
                         val prefs = applicationContext.getSharedPreferences("Settings", Context.MODE_PRIVATE)
                         val selectedLanguage = prefs.getString("selected_language", "English")
-                        val voiceName = applicationContext.getSelectedVoiceName()
 
                         val message = when (selectedLanguage) {
                             "Hindi" -> {
@@ -62,9 +67,34 @@ class NotificationListener : NotificationListenerService() {
                             }
                         }
 
+                        TextSpeaker.speak(applicationContext, message)
 
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val now = Calendar.getInstance()
+                            val date = "%02d %s %04d".format(
+                                now.get(Calendar.DAY_OF_MONTH),
+                                now.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.ENGLISH),
+                                now.get(Calendar.YEAR)
+                            )
+                            val time = "%02d:%02d %s".format(
+                                now.get(Calendar.HOUR) + if (now.get(Calendar.HOUR) == 0) 12 else 0,
+                                now.get(Calendar.MINUTE),
+                                if (now.get(Calendar.AM_PM) == Calendar.AM) "AM" else "PM"
+                            )
 
-                            TextSpeaker.speak(applicationContext, message)
+                            val transaction = com.arif.payvoice.data.Transaction(
+                                appName = appName,
+                                amount = amount,
+                                description = content.trim(),
+                                date = date,
+                                time = time
+                            )
+
+                            com.arif.payvoice.data.TransactionDatabase.getInstance(applicationContext, CoroutineScope(Dispatchers.IO))
+                                .transactionDao()
+                                .insert(transaction)
+                        }
+
 
                     }
                 }

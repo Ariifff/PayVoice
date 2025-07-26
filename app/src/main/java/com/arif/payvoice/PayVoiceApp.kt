@@ -9,6 +9,6 @@ import kotlinx.coroutines.SupervisorJob
 class PayVoiceApp : Application() {
     private val applicationScope = CoroutineScope(SupervisorJob())
 
-    val database by lazy { TransactionDatabase.getDatabase(this, applicationScope) }
+    val database by lazy { TransactionDatabase.getInstance(this, applicationScope) }
     val repository by lazy { TransactionRepository(database.transactionDao()) }
 }
