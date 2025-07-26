@@ -8,7 +8,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -17,8 +16,6 @@ import com.arif.payvoice.starter.ForgotPasswordScreen
 import com.arif.payvoice.starter.LoginScreen
 import com.arif.payvoice.starter.SignUpScreen
 import com.arif.payvoice.starter.SplashScreen
-import com.arif.payvoice.starter.VerifyEmailScreen
-import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,9 +56,7 @@ fun AppNavHost() {
         }
         composable(Routes.Login) {
             LoginScreen(
-                onLoginClick = { email, password ->
-                    // do login
-                },
+                navController = navController,
                 onGoogleClick = {
                     // google login
                 },
@@ -76,23 +71,10 @@ fun AppNavHost() {
         composable(Routes.SignUp){
             SignUpScreen(
                 navController = navController,
-                onSignUpClick = {
-                    // do signup
-                },
-                onLoginClick = {
-                    navController.navigate("login")
-                }
-            )
-        }
-        composable(Routes.VerifyEmail) {
-            VerifyEmailScreen(
-                navController = navController,
-                onVerifyClick = { otp ->
-                    // Handle OTP verification here
-                    // You can also navigate to Main or show success
-                },
-                onResendClick = {
-                    // Handle resend OTP
+                onSignupSuccess = {
+                    navController.navigate(Routes.Main) {
+                        popUpTo("signup") { inclusive = true }
+                    }
                 }
             )
         }
@@ -102,7 +84,9 @@ fun AppNavHost() {
         }
 
         composable(Routes.Main) {
-            MainScreen()
+            MainScreen(
+                navController = navController
+            )
         }
 
     }

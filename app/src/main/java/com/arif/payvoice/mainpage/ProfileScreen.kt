@@ -1,5 +1,6 @@
 package com.arif.payvoice.mainpage
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,21 +18,29 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
 import com.arif.payvoice.ui.theme.Indigo
 import com.arif.payvoice.ui.theme.Purple40
+import com.google.firebase.auth.FirebaseAuth
 
-@Preview
+
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(
+    navController: NavHostController
+) {
     var name by remember { mutableStateOf("") }
     var shopName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var upi by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
     var isEditing by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+
 
 
     Box (
@@ -97,13 +106,16 @@ fun ProfileScreen() {
                     tint = Red,
                     modifier = Modifier
                         .clickable {
+                            FirebaseAuth.getInstance().signOut()
+                            Toast.makeText(context, "Logged out", Toast.LENGTH_SHORT).show()
+                            navController.navigate("login") {
+                                popUpTo(0) { inclusive = true }
+                            }
 
                     }
                 )
 
             }
-
-
 
             // Text Fields with icons
             OutlinedTextField(

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "86843938732",
+    "project_id": "payvoice-8ad3b",
+    "storage_bucket": "payvoice-8ad3b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:86843938732:android:065a3d1a3a3f75bfcccc09",
+        "android_client_info": {
+          "package_name": "com.arif.payvoice"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "86843938732-r7h3kjgn40pa1ca2mklppdll7l4c3hmo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.arif.payvoice",
+            "certificate_hash": "9cd13502fef5f51f96c5ea099a8c00bc035a6221"
+          }
+        },
+        {
+          "client_id": "86843938732-an9ip91rfgqv286d6lhck887o8s746lc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClJT8nu0dUTjSeiLnxcE6ZOpVE7ZDsLL8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "86843938732-an9ip91rfgqv286d6lhck887o8s746lc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -14,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -41,15 +43,17 @@ val bottomNavItems = listOf(
 
 
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    navController: NavHostController
+) {
+    val bottomNavController = rememberNavController()
 
     val app = LocalContext.current.applicationContext as PayVoiceApp
     val viewModel: HistoryViewModel = viewModel(
         factory = HistoryViewModelFactory(app.repository)
     )
 
-    val navController = rememberNavController()
-    val currentDestination = navController.currentBackStackEntryAsState().value?.destination?.route
+    val currentDestination = bottomNavController.currentBackStackEntryAsState().value?.destination?.route
 
     Scaffold(
         bottomBar = {
@@ -58,7 +62,7 @@ fun MainScreen() {
                     NavigationBarItem(
                         selected = currentDestination == item.route,
                         onClick = {
-                            navController.navigate(item.route) {
+                            bottomNavController.navigate(item.route) {
                                 popUpTo(Routes.Home)
                                 launchSingleTop = true
                             }
@@ -72,17 +76,17 @@ fun MainScreen() {
         }
     ) { innerPadding ->
         NavHost(
-            navController = navController,
+            navController = bottomNavController,
             startDestination = Routes.Home,
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Routes.Home) { HomeScreen() }
             composable(Routes.History) { HistoryScreen(viewModel) }
-            composable(Routes.Settings) { SettingsScreen(navController) }
-            composable(Routes.Profile) { ProfileScreen() }
+            composable(Routes.Settings) { SettingsScreen(bottomNavController) }
+            composable(Routes.Profile) { ProfileScreen(navController) }
             composable(Routes.Faq) { FaqScreen() }
-            composable(Routes.PrivacyPolicy) { PrivacyPolicyScreen(onBack = { navController.popBackStack() }) }
-            composable(Routes.TermsAndConditions) { TermsAndConditionsScreen(onBack = { navController.popBackStack() }) }
+            composable(Routes.PrivacyPolicy) { PrivacyPolicyScreen(onBack = { bottomNavController.popBackStack() }) }
+            composable(Routes.TermsAndConditions) { TermsAndConditionsScreen(onBack = { bottomNavController.popBackStack() }) }
 
         }
 

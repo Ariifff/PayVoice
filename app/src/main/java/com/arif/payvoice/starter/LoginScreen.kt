@@ -1,6 +1,5 @@
 package com.arif.payvoice.starter
 
-import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.BorderStroke
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.paddingFrom
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -45,15 +43,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.arif.payvoice.R
 import com.arif.payvoice.ui.theme.Blue
+import com.google.firebase.auth.FirebaseAuth
+import android.util.Log
+import android.widget.Toast
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
 
 @Composable
 fun LoginScreen(
-    onLoginClick: (String, String) -> Unit,
+    navController: NavController,
     onGoogleClick: () -> Unit,
     onSignupClick: () -> Unit,
     onForgotClick: () -> Unit
@@ -64,6 +66,9 @@ fun LoginScreen(
     var passwordVisible by remember { mutableStateOf(false) }
 
     val activity = LocalActivity.current
+
+    val auth = FirebaseAuth.getInstance()
+
 
     BackHandler {
         activity?.finishAffinity()
@@ -127,7 +132,28 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(20.dp))
 
         Button(
-            onClick = { onLoginClick(email, password) },
+            onClick = {
+                if (email.isNotEmpty() && password.isNotEmpty()) {
+                auth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
+                            navController.navigate("main") {
+                                popUpTo("login") { inclusive = true }
+                            }
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Login failed: ${task.exception?.message}",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            Log.e("FIREBASE", "Login failed", task.exception)
+                        }
+                    }
+            } else {
+                Toast.makeText(context, "Please enter email and password", Toast.LENGTH_SHORT).show()
+            }
+                      },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),

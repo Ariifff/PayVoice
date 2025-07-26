@@ -1,5 +1,7 @@
 package com.arif.payvoice.starter
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -36,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -48,12 +51,12 @@ import androidx.navigation.NavController
 import com.arif.payvoice.accessories.Routes
 import com.arif.payvoice.ui.theme.Black
 import com.arif.payvoice.ui.theme.Blue
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun SignUpScreen(
     navController: NavController,
-    onSignUpClick: () -> Unit,
-    onLoginClick: () -> Unit
+    onSignupSuccess: () -> Unit,
 ) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -62,6 +65,10 @@ fun SignUpScreen(
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
     var isEmailVerified by remember { mutableStateOf(false) }
+
+    var loading by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val auth = FirebaseAuth.getInstance()
 
 
     Column(
@@ -110,7 +117,6 @@ fun SignUpScreen(
                         color = Blue,
                         modifier = Modifier
                             .clickable {
-                                navController.navigate(Routes.VerifyEmail)
                                 // set isEmailVerified = true
                             }
                             .wrapContentSize()
@@ -157,7 +163,23 @@ fun SignUpScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = onSignUpClick,
+            onClick = {
+                if (email.isNotEmpty() && password.isNotEmpty()) {
+                    auth.createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                Toast.makeText(context, "Sign-up successful", Toast.LENGTH_SHORT).show()
+                                Log.d("FIREBASE", "User created: ${auth.currentUser?.uid}")
+                                onSignupSuccess() // navigate to main or home
+                            } else {
+                                Toast.makeText(context, "Failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                                Log.e("FIREBASE", "Error", task.exception)
+                            }
+                        }
+                } else {
+                    Toast.makeText(context, "Please enter email & password", Toast.LENGTH_SHORT).show()
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
@@ -176,7 +198,7 @@ fun SignUpScreen(
             Text(
                 text = "Login",
                 color = Blue,
-                modifier = Modifier.clickable { onLoginClick() },
+                modifier = Modifier.clickable { },
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
             )
         }

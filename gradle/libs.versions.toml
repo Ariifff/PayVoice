@@ -16,6 +16,8 @@ iconversion = "1.6.1"
 room = "2.7.2"
 lifecycleViewmodel="2.9.0"
 kotlincoroutines="1.7.3"
+googleGmsGoogleServices = "4.4.3"
+firebaseAuth = "24.0.0"
 
 
 [libraries]
@@ -28,7 +30,6 @@ androidx-activity-compose = { group = "androidx.activity", name = "activity-comp
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
-androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 lottie-compose = { group = "com.airbnb.android", name = "lottie-compose", version.ref = "lottiecompose" }
@@ -38,9 +39,11 @@ room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 androidx-lifecycle={group="androidx.lifecycle", name="lifecycle-viewmodel-ktx", version.ref="lifecycleViewmodel"}
 kotlinx-coroutines={group="org.jetbrains.kotlinx",name="kotlinx-coroutines-android", version.ref="kotlincoroutines"}
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "composePlugin" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref="kotlin" }
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }

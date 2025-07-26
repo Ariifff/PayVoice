@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose) // REQUIRED for Kotlin 2.1
     alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -57,6 +58,7 @@ dependencies {
     implementation(libs.image.vector)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
+    implementation(libs.firebase.auth)
     kapt(libs.room.compiler)
     implementation(libs.androidx.lifecycle)
     implementation(libs.kotlinx.coroutines)
@@ -65,7 +67,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }

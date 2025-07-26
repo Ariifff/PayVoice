@@ -5,7 +5,6 @@ object Routes {
     const val Permission = "permission"
     const val Login = "login"
     const val SignUp = "signup"
-    const val VerifyEmail = "verifyemail"
     const val ForgotPassword = "forgotpassword"
     const val Main = "main"
 
