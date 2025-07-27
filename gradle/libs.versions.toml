@@ -19,6 +19,7 @@ kotlincoroutines="1.7.3"
 googleGmsGoogleServices = "4.4.3"
 firebaseAuth = "24.0.0"
 firebaseDatabase = "22.0.0"
+playServicesAuth = "20.7.0"
 
 
 [libraries]
@@ -42,6 +43,7 @@ androidx-lifecycle={group="androidx.lifecycle", name="lifecycle-viewmodel-ktx", 
 kotlinx-coroutines={group="org.jetbrains.kotlinx",name="kotlinx-coroutines-android", version.ref="kotlincoroutines"}
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
+google-play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

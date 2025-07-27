@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">PayVoice</string>
+
+    <!-- From Google Cloud Console (OAuth 2.0 Client ID for Android) -->
+    <string name="google_client_id">407903496417-82090j8kbld67qptc8n97amdc8p79ujg.apps.googleusercontent.com</string>
+
+    <!-- From Firebase Console -->
+    <string name="firebase_web_api_key">AIzaSyClJT8nu0dUTjSeiLnxcE6ZOpVE7ZDsLL8</string>
 </resources>

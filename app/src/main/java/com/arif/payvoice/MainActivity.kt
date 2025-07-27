@@ -57,9 +57,6 @@ fun AppNavHost() {
         composable(Routes.Login) {
             LoginScreen(
                 navController = navController,
-                onGoogleClick = {
-                    // google login
-                },
                 onSignupClick = {
                     navController.navigate("signup")
                 },

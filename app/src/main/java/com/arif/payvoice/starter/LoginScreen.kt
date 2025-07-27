@@ -1,7 +1,11 @@
 package com.arif.payvoice.starter
 
+import android.app.Activity
+import android.content.Context
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.LocalActivity
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +26,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,34 +49,88 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.arif.payvoice.R
 import com.arif.payvoice.ui.theme.Blue
-import com.google.firebase.auth.FirebaseAuth
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import android.util.Log
 import android.widget.Toast
-import androidx.navigation.NavController
-
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.database.FirebaseDatabase
 
 @Composable
 fun LoginScreen(
-    navController: NavController,
-    onGoogleClick: () -> Unit,
+    navController: NavHostController,
     onSignupClick: () -> Unit,
     onForgotClick: () -> Unit
 ) {
     val context = LocalContext.current
+    val activity = LocalActivity.current
+    val auth = FirebaseAuth.getInstance()
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
 
-    val activity = LocalActivity.current
-
-    val auth = FirebaseAuth.getInstance()
-
-
-    BackHandler {
-        activity?.finishAffinity()
+    // Google Sign-In Launcher
+    val googleSignInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+            try {
+                val account = task.getResult(ApiException::class.java)
+                val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+                isLoading = true
+                auth.signInWithCredential(credential)
+                    .addOnCompleteListener { authTask ->
+                        isLoading = false
+                        if (authTask.isSuccessful) {
+                            saveUserToDatabase(account)
+                            navController.navigate("main") {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        } else {
+                            showError(context, authTask.exception)
+                        }
+                    }
+            } catch (e: ApiException) {
+                isLoading = false
+                Toast.makeText(context, "Google sign in failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                Log.e("GOOGLE_SIGN_IN", "Error: ${e.message}", e)
+            }
+        }
     }
+
+    // Function to trigger Google Sign-In
+    fun signInWithGoogle() {
+        activity?.let { safeActivity ->
+            // First sign out to force account selection
+            GoogleSignIn.getClient(safeActivity, GoogleSignInOptions.DEFAULT_SIGN_IN).signOut()
+                .addOnCompleteListener {
+                    // Now proceed with sign-in
+                    val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                        .requestIdToken(context.getString(R.string.default_web_client_id))
+                        .requestEmail()
+                        .build()
+
+                    val googleSignInClient = GoogleSignIn.getClient(safeActivity, gso)
+                    googleSignInLauncher.launch(googleSignInClient.signInIntent)
+                }
+        } ?: run {
+            Toast.makeText(context, "Activity not available", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+    BackHandler { activity?.finishAffinity() }
 
     Column(
         modifier = Modifier
@@ -111,18 +170,18 @@ fun LoginScreen(
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
         )
+
         Spacer(modifier = Modifier.height(8.dp))
 
         Box(
-            modifier = Modifier
-                .fillMaxWidth(),
-            contentAlignment = Alignment.CenterEnd // Align content to right
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.CenterEnd
         ) {
             Text(
                 text = "Forgot Password?",
                 color = Blue,
                 modifier = Modifier
-                    .clip(RoundedCornerShape(4.dp)) // Optional: for nice ripple edges
+                    .clip(RoundedCornerShape(4.dp))
                     .clickable { onForgotClick() },
                 style = MaterialTheme.typography.bodyMedium
             )
@@ -133,33 +192,34 @@ fun LoginScreen(
         Button(
             onClick = {
                 if (email.isNotEmpty() && password.isNotEmpty()) {
-                auth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
-                            navController.navigate("main") {
-                                popUpTo(0) { inclusive = true }
+                    isLoading = true
+                    auth.signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener { task ->
+                            isLoading = false
+                            if (task.isSuccessful) {
+                                navController.navigate("main") {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            } else {
+                                showError(context, task.exception)
                             }
-                        } else {
-                            Toast.makeText(
-                                context,
-                                "Login failed: ${task.exception?.message}",
-                                Toast.LENGTH_LONG
-                            ).show()
-                            Log.e("FIREBASE", "Login failed", task.exception)
                         }
-                    }
-            } else {
-                Toast.makeText(context, "Please enter email and password", Toast.LENGTH_SHORT).show()
-            }
-                      },
+                } else {
+                    Toast.makeText(context, "Please enter email and password", Toast.LENGTH_SHORT).show()
+                }
+            },
+            enabled = !isLoading,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
-            colors= ButtonDefaults.buttonColors(containerColor = Blue),
+            colors = ButtonDefaults.buttonColors(containerColor = Blue),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text("Login")
+            if (isLoading) {
+                CircularProgressIndicator(color = Color.White)
+            } else {
+                Text("Login")
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -177,7 +237,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedButton(
-            onClick = { onGoogleClick() },
+            onClick = { signInWithGoogle()},
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
@@ -196,9 +256,7 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Row (
-            verticalAlignment = Alignment.CenterVertically
-        ){
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Text("Don't have an account? ")
             Text(
                 text = "Sign up",
@@ -209,3 +267,33 @@ fun LoginScreen(
         }
     }
 }
+
+
+private fun showError(context: Context, exception: Exception?) {
+    val errorMsg = when (exception) {
+        is FirebaseAuthInvalidUserException -> "Account not found"
+        is FirebaseAuthInvalidCredentialsException -> "Invalid credentials"
+        else -> "Authentication failed: ${exception?.message}"
+    }
+    Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
+    Log.e("LOGIN_ERROR", errorMsg, exception)
+}
+
+private fun saveUserToDatabase(account: GoogleSignInAccount) {
+    val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+    val userRef = FirebaseDatabase.getInstance().getReference("users/$userId")
+
+    val userData = hashMapOf(
+        "name" to account.displayName,
+        "email" to account.email,
+    )
+
+    userRef.setValue(userData)
+        .addOnSuccessListener {
+            Log.d("Database", "User data saved successfully")
+        }
+        .addOnFailureListener { e ->
+            Log.e("Database", "Failed to save user data", e)
+        }
+}
+

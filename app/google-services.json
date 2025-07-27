@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "86843938732",
+    "firebase_url": "https://payvoice-8ad3b-default-rtdb.firebaseio.com",
     "project_id": "payvoice-8ad3b",
     "storage_bucket": "payvoice-8ad3b.firebasestorage.app"
   },
