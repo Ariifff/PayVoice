@@ -296,4 +296,3 @@ private fun saveUserToDatabase(account: GoogleSignInAccount) {
             Log.e("Database", "Failed to save user data", e)
         }
 }
-

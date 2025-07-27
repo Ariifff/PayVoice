@@ -83,7 +83,7 @@ fun MainScreen(
             composable(Routes.History) { HistoryScreen(viewModel) }
             composable(Routes.Settings) { SettingsScreen(bottomNavController) }
             composable(Routes.Profile) { ProfileScreen(navController) }
-            composable(Routes.Faq) { FaqScreen() }
+            composable(Routes.Faq) { FaqScreen(onBack = { bottomNavController.popBackStack() }) }
             composable(Routes.PrivacyPolicy) { PrivacyPolicyScreen(onBack = { bottomNavController.popBackStack() }) }
             composable(Routes.TermsAndConditions) { TermsAndConditionsScreen(onBack = { bottomNavController.popBackStack() }) }
 
