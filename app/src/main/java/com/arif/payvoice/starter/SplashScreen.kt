@@ -21,17 +21,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.arif.payvoice.accessories.Routes
 import com.arif.payvoice.ui.theme.Blue
 import com.arif.payvoice.ui.theme.Purple80
 import com.arif.payvoice.R
 import com.arif.payvoice.util.isPermissionShown
 import com.arif.payvoice.util.setPermissionShown
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 
 
 @Composable
 fun SplashScreen(navController: NavController) {
+
+    val auth = FirebaseAuth.getInstance()
 
     val context = LocalContext.current
 
@@ -43,8 +45,14 @@ fun SplashScreen(navController: NavController) {
         when {
             permissionGranted -> {
                 context.setPermissionShown(true) // ensure it's set
-                navController.navigate("login") {
-                    popUpTo("splash") { inclusive = true }
+                if (auth.currentUser != null) {
+                    navController.navigate("main") {
+                        popUpTo("splash") { inclusive = true }
+                    }
+                } else {
+                    navController.navigate("login") {
+                        popUpTo("splash") { inclusive = true }
+                    }
                 }
             }
 
@@ -56,8 +64,14 @@ fun SplashScreen(navController: NavController) {
 
             else -> {
                 // Permission not granted, and already shown once
-                navController.navigate("login") {
-                    popUpTo("splash") { inclusive = true }
+                if (auth.currentUser != null) {
+                    navController.navigate("main") {
+                        popUpTo("splash") { inclusive = true }
+                    }
+                } else {
+                    navController.navigate("login") {
+                        popUpTo("splash") { inclusive = true }
+                    }
                 }
             }
         }
@@ -81,7 +95,7 @@ fun SplashScreen(navController: NavController) {
         )
 
         Text(
-            text = "Developed by Arif",
+            text = "Developed by Alig",
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier
                 .fillMaxWidth()

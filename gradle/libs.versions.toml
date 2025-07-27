@@ -18,6 +18,7 @@ lifecycleViewmodel="2.9.0"
 kotlincoroutines="1.7.3"
 googleGmsGoogleServices = "4.4.3"
 firebaseAuth = "24.0.0"
+firebaseDatabase = "22.0.0"
 
 
 [libraries]
@@ -40,6 +41,7 @@ room-compiler = { group = "androidx.room", name = "room-compiler", version.ref =
 androidx-lifecycle={group="androidx.lifecycle", name="lifecycle-viewmodel-ktx", version.ref="lifecycleViewmodel"}
 kotlinx-coroutines={group="org.jetbrains.kotlinx",name="kotlinx-coroutines-android", version.ref="kotlincoroutines"}
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
+firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

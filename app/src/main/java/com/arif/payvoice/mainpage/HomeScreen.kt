@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arif.payvoice.ui.theme.Blue
+import com.arif.payvoice.ui.theme.White
 import com.arif.payvoice.util.TextSpeaker
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,6 +49,7 @@ fun HomeScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(color = White)
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -121,6 +123,7 @@ fun HomeScreen() {
             }
 
             DropdownMenu(
+                modifier = Modifier.background(White),
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
             ) {

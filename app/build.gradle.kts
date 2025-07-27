@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.database)
     kapt(libs.room.compiler)
     implementation(libs.androidx.lifecycle)
     implementation(libs.kotlinx.coroutines)

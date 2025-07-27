@@ -1,6 +1,7 @@
 package com.arif.payvoice.mainpage
 
 import android.content.Context
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -40,8 +41,10 @@ fun SettingsScreen(navController : NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(color = White)
             .verticalScroll(scrollState)
             .padding(16.dp)
+
     ) {
 
         Text("Voice & Accessibility", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
@@ -94,7 +97,7 @@ fun SettingsScreen(navController : NavController) {
         Text("About", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
 
         SettingsOption("App Version", subtitle = "v1.0") {}
-        SettingsOption("Developed by", subtitle = "Arif") {}
+        SettingsOption("Developed by", subtitle = "Alig") {}
         SettingsOption("FAQs") {navController.navigate("faq")}
         SettingsOption("Privacy Policy") {navController.navigate("PrivacyPolicy")}
         SettingsOption("Terms and Conditions") {navController.navigate("TermsAndConditions")}

@@ -1,6 +1,5 @@
 package com.arif.payvoice.starter
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,9 +13,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
@@ -28,8 +28,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,23 +39,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.arif.payvoice.accessories.Routes
-import com.arif.payvoice.ui.theme.Black
+import com.arif.payvoice.model.User
 import com.arif.payvoice.ui.theme.Blue
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.database
+import kotlinx.coroutines.delay
 
 @Composable
 fun SignUpScreen(
-    navController: NavController,
     onSignupSuccess: () -> Unit,
 ) {
     var name by remember { mutableStateOf("") }
@@ -63,13 +59,31 @@ fun SignUpScreen(
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    var confirmPasswordVisible by remember { mutableStateOf(false) }
+    var address by remember { mutableStateOf("") }
     var isEmailVerified by remember { mutableStateOf(false) }
-
     var loading by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val auth = FirebaseAuth.getInstance()
+    val database= Firebase.database.reference
 
+    // Check verification status periodically
+    LaunchedEffect(email) {
+        while (email.isNotBlank() && !isEmailVerified) {
+            delay(3000)
+            auth.signInWithEmailAndPassword(email, "temporaryPassword123")
+                .addOnSuccessListener {
+                    it.user?.reload()?.addOnSuccessListener { _ ->
+                        isEmailVerified = it.user?.isEmailVerified ?: false
+                        if (!isEmailVerified) {
+                            auth.signOut()
+                        }
+                    }
+                }
+                .addOnFailureListener {
+                    // Couldn't sign in - probably not created yet
+                }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -99,36 +113,105 @@ fun SignUpScreen(
                 email = it
                 isEmailVerified = false // reset if email is changed
             },
-            label = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Email")
-                    if (isEmailVerified) {
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("✅", color = Color.Green, fontWeight = FontWeight.Bold)
-                    }
-                }
-            },
+            label = { Text("Email") },
             singleLine = true,
             leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
             trailingIcon = {
-                if (!isEmailVerified && email.isNotBlank()) {
-                    Text(
-                        "Verify",
-                        color = Blue,
-                        modifier = Modifier
-                            .clickable {
-                                // set isEmailVerified = true
-                            }
-                            .wrapContentSize()
-                            .clip(RoundedCornerShape(4.dp))
-                            .padding(end = 16.dp),
-                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold)
-                    )
+                if (email.isNotBlank()) {
+                    if (isEmailVerified) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = "Verified",
+                            tint = Color.Green,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                    } else {
+                        Text(
+                            "Verify",
+                            color = Blue,
+                            modifier = Modifier
+                                .clickable {
+                                    if (email.isNotEmpty()) {
+                                        loading = true
+                                        auth.fetchSignInMethodsForEmail(email)
+                                            .addOnCompleteListener { methodTask ->
+                                                if (methodTask.isSuccessful) {
+                                                    val signInMethods = methodTask.result?.signInMethods
+                                                    if (signInMethods.isNullOrEmpty()) {
+                                                        // New user — create temp account to send verification
+                                                        auth.createUserWithEmailAndPassword(
+                                                            email,
+                                                            "temporaryPassword123"
+                                                        )
+                                                            .addOnCompleteListener { createTask ->
+                                                                if (createTask.isSuccessful) {
+                                                                    auth.currentUser?.sendEmailVerification()
+                                                                        ?.addOnCompleteListener { verifyTask ->
+                                                                            if (verifyTask.isSuccessful) {
+                                                                                Toast.makeText(
+                                                                                    context,
+                                                                                    "Verification email sent to your email, check spam folder",
+                                                                                    Toast.LENGTH_SHORT
+                                                                                ).show()
+                                                                            } else {
+                                                                                Toast.makeText(
+                                                                                    context,
+                                                                                    "Failed to send email: ${verifyTask.exception?.message}",
+                                                                                    Toast.LENGTH_SHORT
+                                                                                ).show()
+                                                                            }
+                                                                            auth.signOut()
+                                                                            loading = false
+                                                                        }
+                                                                } else {
+                                                                    Toast.makeText(
+                                                                        context,
+                                                                        "Error: ${createTask.exception?.message}",
+                                                                        Toast.LENGTH_SHORT
+                                                                    ).show()
+                                                                    loading = false
+                                                                }
+                                                            }
+                                                    } else {
+                                                        Toast.makeText(
+                                                            context,
+                                                            "Email already registered",
+                                                            Toast.LENGTH_SHORT
+                                                        ).show()
+                                                        loading = false
+                                                    }
+                                                } else {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "Error checking email",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                    loading = false
+                                                }
+                                            }
+                                    }
+                                }
+                                .wrapContentSize()
+                                .clip(RoundedCornerShape(4.dp))
+                                .padding(end = 16.dp),
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold)
+                        )
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth()
         )
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = address,
+            onValueChange = { address = it },
+            label = { Text("Address") },
+            leadingIcon = { Icon(Icons.Default.Home, contentDescription = null) },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -155,7 +238,6 @@ fun SignUpScreen(
             onValueChange = { confirmPassword = it },
             label = { Text("Confirm Password") },
             singleLine = true,
-            visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
             modifier = Modifier.fillMaxWidth()
         )
@@ -164,20 +246,58 @@ fun SignUpScreen(
 
         Button(
             onClick = {
-                if (email.isNotEmpty() && password.isNotEmpty()) {
-                    auth.createUserWithEmailAndPassword(email, password)
-                        .addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                Toast.makeText(context, "Sign-up successful", Toast.LENGTH_SHORT).show()
-                                Log.d("FIREBASE", "User created: ${auth.currentUser?.uid}")
-                                onSignupSuccess() // navigate to main or home
-                            } else {
-                                Toast.makeText(context, "Failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
-                                Log.e("FIREBASE", "Error", task.exception)
-                            }
+                if (name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty()) {
+                    if (password != confirmPassword) {
+                        Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+                    if (!isEmailVerified) {
+                        Toast.makeText(context, "Please verify your email first", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+
+                    auth.signInWithEmailAndPassword(email, "temporaryPassword123")
+                        .addOnSuccessListener {
+                            val user = auth.currentUser
+                            user?.updatePassword(password)
+                                ?.addOnCompleteListener { updateTask ->
+                                    if (updateTask.isSuccessful) {
+                                        // Create User object
+                                        val newUser = User(
+                                            uid = user.uid,
+                                            name = name,
+                                            email = email,
+                                            address = address
+                                        )
+
+                                        // Save to Realtime Database
+                                        database.child("users").child(user.uid).setValue(newUser)
+                                            .addOnCompleteListener { dbTask ->
+                                                if (dbTask.isSuccessful) {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "Sign-up complete!",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                    onSignupSuccess()
+                                                } else {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "Failed to save user data: ${dbTask.exception?.message}",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+                                            }
+                                    } else {
+                                        Toast.makeText(context, "Failed to set password", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(context, "Please verify first or try again", Toast.LENGTH_SHORT).show()
                         }
                 } else {
-                    Toast.makeText(context, "Please enter email & password", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Please enter all fields", Toast.LENGTH_SHORT).show()
                 }
             },
             modifier = Modifier

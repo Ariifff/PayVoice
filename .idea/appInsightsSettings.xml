@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.arif.payvoice" />
+                  <option name="mobileSdkAppId" value="1:86843938732:android:065a3d1a3a3f75bfcccc09" />
+                  <option name="projectId" value="payvoice-8ad3b" />
+                  <option name="projectNumber" value="86843938732" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

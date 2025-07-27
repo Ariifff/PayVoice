@@ -1,6 +1,7 @@
 package com.arif.payvoice.mainpage
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -8,24 +9,30 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Store
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
+import com.arif.payvoice.model.User
 import com.arif.payvoice.ui.theme.Indigo
 import com.arif.payvoice.ui.theme.Purple40
+import com.arif.payvoice.ui.theme.White
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.database
 
 
 @Composable
@@ -33,18 +40,42 @@ fun ProfileScreen(
     navController: NavHostController
 ) {
     var name by remember { mutableStateOf("") }
-    var shopName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
-    var upi by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
     var isEditing by remember { mutableStateOf(false) }
-
+    val auth = FirebaseAuth.getInstance()
+    val currentUser = auth.currentUser
+    var user by remember { mutableStateOf<User?>(null) }
+    val database = Firebase.database.reference
+    var isInitialLoad by rememberSaveable { mutableStateOf(true) }
     val context = LocalContext.current
 
 
+    // Fetch user data when screen loads
+    LaunchedEffect(currentUser?.uid) {
+        if(isInitialLoad && currentUser?.uid !=null ) {
+            getUserData(
+                userId = currentUser.uid,
+                onSuccess = { fetchedUser ->
+                    user = fetchedUser
+                    name = fetchedUser.name
+                    email = fetchedUser.email
+                    address = fetchedUser.address
+                    isInitialLoad = false
+                },
+                onFailure = { exception ->
+                    Toast.makeText(context, "Failed to load user data", Toast.LENGTH_SHORT).show()
+
+                    isInitialLoad = false
+                }
+            )
+        }
+    }
 
     Box (
         modifier = Modifier.fillMaxSize()
+            .background(color = White)
     ){
         Column(
             modifier = Modifier
@@ -72,11 +103,6 @@ fun ProfileScreen(
                         text = "Welcome, ${if (name.isNotEmpty()) name else "User"} 👋",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = if (shopName.isNotEmpty()) shopName else "Your Shop Name",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Black
                     )
                 }
             }
@@ -117,59 +143,55 @@ fun ProfileScreen(
 
             }
 
-            // Text Fields with icons
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Your Name") },
-                leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                enabled = isEditing
-            )
+            key("name_field_${currentUser?.uid}") {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Your Name") },
+                    leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = isEditing
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            OutlinedTextField(
-                value = shopName,
-                onValueChange = { shopName = it },
-                label = { Text("Shop Name") },
-                leadingIcon = { Icon(Icons.Default.Store, contentDescription = null) },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                enabled = isEditing
-            )
+            key("email_field_${currentUser?.uid}") {
+                OutlinedTextField(
+                    value = email.ifEmpty { currentUser?.email ?: "" },
+                    onValueChange = {},
+                    label = { Text("Email") },
+                    leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
+                    singleLine = true,
+                    isError = showError && !email.contains("@"),
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = false,
+                    colors = TextFieldDefaults.colors(
+                        disabledTextColor = Gray,
+                        disabledContainerColor = White,
+                        disabledLeadingIconColor = Gray
+                    )
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Email") },
-                leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
-                singleLine = true,
-                isError = showError && !email.contains("@"),
-                modifier = Modifier.fillMaxWidth(),
-                enabled = isEditing
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
-                value = upi,
-                onValueChange = { upi = it },
-                label = { Text("UPI ID") },
-                leadingIcon = { Icon(Icons.Default.AccountBalanceWallet, contentDescription = null) },
-                singleLine = true,
-                isError = showError && !upi.contains("@"),
-                modifier = Modifier.fillMaxWidth(),
-                enabled = isEditing
-            )
+            key("address_field_${currentUser?.uid}") {
+                OutlinedTextField(
+                    value = address,
+                    onValueChange = { address = it },
+                    label = { Text("Address") },
+                    leadingIcon = { Icon(Icons.Default.Home, contentDescription = null) },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = isEditing
+                )
+            }
 
             if (showError) {
                 Text(
-                    text = "Please enter valid Email and UPI ID",
-                    color = androidx.compose.ui.graphics.Color.Red,
+                    text = "Please enter valid Email",
+                    color = Red,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(top = 8.dp)
                 )
@@ -180,13 +202,26 @@ fun ProfileScreen(
 
             Button(
                 onClick = {
-                    if (email.contains("@") && upi.contains("@")) {
-                        showError = false
-                        isEditing = false
-                        // TODO: Save logic (maybe use DataStore)
-                    } else {
-                        showError = true
-                    }
+                        // Update user data in Firebase
+                        currentUser?.uid?.let { userId ->
+                            val updatedUser = User(
+                                uid = userId,
+                                name = name,
+                                email = email,
+                                address = address
+                            )
+
+                            database.child("users").child(userId).setValue(updatedUser)
+                                .addOnSuccessListener {
+                                    Toast.makeText(context, "Profile updated successfully", Toast.LENGTH_SHORT).show()
+                                    isEditing = false
+                                }
+                                .addOnFailureListener {
+                                    Toast.makeText(context, "Failed to update profile", Toast.LENGTH_SHORT).show()
+                                    isEditing = true // Keep in edit mode if update fails
+                                }
+                        }
+
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Indigo),
                 modifier = Modifier.fillMaxWidth(),
@@ -198,7 +233,7 @@ fun ProfileScreen(
         }
 
         Text(
-            text = "PayVoice v1.0\nDeveloped by Arif",
+            text = "PayVoice v1.0\nDeveloped by Alig",
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier
                 .fillMaxWidth()
@@ -210,7 +245,15 @@ fun ProfileScreen(
 
     }
 
+}
 
-
+fun getUserData(userId: String, onSuccess: (User) -> Unit, onFailure: (Exception) -> Unit) {
+    val database = Firebase.database.reference
+    database.child("users").child(userId).get()
+        .addOnSuccessListener { dataSnapshot ->
+            val user = dataSnapshot.getValue(User::class.java)
+            user?.let(onSuccess) ?: onFailure(Exception("User data not found"))
+        }
+        .addOnFailureListener(onFailure)
 }
 

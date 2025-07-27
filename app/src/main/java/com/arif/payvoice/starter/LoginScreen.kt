@@ -50,7 +50,6 @@ import com.google.firebase.auth.FirebaseAuth
 import android.util.Log
 import android.widget.Toast
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 
 
 @Composable
@@ -139,7 +138,7 @@ fun LoginScreen(
                         if (task.isSuccessful) {
                             Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
                             navController.navigate("main") {
-                                popUpTo("login") { inclusive = true }
+                                popUpTo(0) { inclusive = true }
                             }
                         } else {
                             Toast.makeText(

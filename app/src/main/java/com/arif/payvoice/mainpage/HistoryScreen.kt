@@ -1,5 +1,6 @@
 package com.arif.payvoice.mainpage
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
@@ -11,13 +12,21 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import com.arif.payvoice.ui.theme.Blue
+import com.arif.payvoice.ui.theme.Purple80
+import com.arif.payvoice.ui.theme.PurpleGrey80
+import com.arif.payvoice.ui.theme.SoftGray
+import com.arif.payvoice.ui.theme.TrustWorthyBlue
 import com.arif.payvoice.ui.theme.White
 
 
 @Composable
 fun HistoryScreen(viewModel: HistoryViewModel) {
     val transactions by viewModel.transactions.collectAsState()
-    Column {
+    Column (
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = White)
+    ){
         Text("History",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
@@ -25,6 +34,7 @@ fun HistoryScreen(viewModel: HistoryViewModel) {
             color = Blue,
             modifier = Modifier.padding(16.dp)
         )
+        Divider( thickness = 1.dp)
 
         LazyColumn(modifier = Modifier.padding(16.dp)) {
             items(transactions) { txn ->
@@ -34,7 +44,7 @@ fun HistoryScreen(viewModel: HistoryViewModel) {
                         .padding(vertical = 6.dp),
                     elevation = CardDefaults.cardElevation(4.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = White
+                        containerColor = SoftGray
                     )
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {

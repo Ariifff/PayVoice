@@ -38,7 +38,7 @@ fun AppNavHost() {
 
     NavHost(
         navController = navController,
-        startDestination = Routes.Splash
+        startDestination = "splash"
     ) {
         composable(Routes.Splash) {
             SplashScreen(navController)
@@ -47,7 +47,7 @@ fun AppNavHost() {
         composable(Routes.Permission) {
             PermissionScreen(
                 onGrantPermission = {
-                    navController.navigate(Routes.Main) {
+                    navController.navigate("main") {
                         popUpTo("permission") { inclusive = true }
 
                     }
@@ -68,16 +68,16 @@ fun AppNavHost() {
                 }
             )
         }
-        composable(Routes.SignUp){
+        composable(Routes.SignUp) {
             SignUpScreen(
-                navController = navController,
                 onSignupSuccess = {
                     navController.navigate(Routes.Main) {
-                        popUpTo("signup") { inclusive = true }
+                        popUpTo(Routes.SignUp) { inclusive = true }
                     }
                 }
             )
         }
+
 
         composable(Routes.ForgotPassword){
             ForgotPasswordScreen()
