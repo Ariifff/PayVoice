@@ -58,8 +58,7 @@ cd payvoice
 ---
 
 ### 📐 Architecture
-MVVM (Model-View-ViewModel)
-
+- MVVM (Model-View-ViewModel)
 - Jetpack Compose for UI
 - Room for offline data storage
 - Kotlin Coroutines + Flow
@@ -92,3 +91,8 @@ MVVM (Model-View-ViewModel)
 All customizable via the Settings screen inside the app.
 
 ---
+
+### 🧑‍💻 Developer
+Mohd Arif Rainee
+B.Tech Computer Engineering, AMU
+📧 arifdevelopment1@gmail.com
