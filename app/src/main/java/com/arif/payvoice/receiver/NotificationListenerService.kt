@@ -16,7 +16,8 @@ class NotificationListener : NotificationListenerService() {
     private val paymentApps = mapOf(
         "net.one97.paytm" to "Paytm",
         "com.google.android.apps.nbu.paisa.user" to "Google Pay",
-        "com.phonepe.app" to "PhonePe"
+        "com.phonepe.app" to "PhonePe",
+        "net.one97.paytm.merchant" to "Paytm"
     )
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
@@ -42,7 +43,9 @@ class NotificationListener : NotificationListenerService() {
 
             if (content.contains("Received", ignoreCase = true) ||
                 content.contains("Credited", ignoreCase = true) ||
-                content.contains("paid you", ignoreCase = true)) {
+                content.contains("paid you", ignoreCase = true) ||
+                content.contains("received", ignoreCase = true) ||
+                content.contains("credited", ignoreCase = true) ) {
 
                 extractAmount(content)?.let { amount ->
                     Log.d("PayVoice", "DETECTED: ₹$amount from $appName")
