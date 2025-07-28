@@ -105,10 +105,3 @@ If you found this project helpful, consider leaving a ⭐ to support the develop
 
 ---
 
-Let me know if you'd like:
-
-- Badges (e.g., "Built with Kotlin", "License: MIT")
-- Help uploading images or icons
-- GitHub Actions workflow setup (for CI)
-- Or anything else to polish your repo!
-
