@@ -23,9 +23,9 @@
 
 > Make sure to upload your screenshots in a folder named `assets/` in your GitHub repo and update the image paths below.
 
-| Home Screen | Notification Announcement | Settings Page |
+| Login Screen | Home Page | Settings Page |
 |-------------|----------------------------|----------------|
-| ![Home](assets/screenshot_home.png.jpg) | ![Notification](assets/screenshot_notification.png) | ![Settings](assets/screenshot_settings.png) |
+| ![Login](assets/screenshot_login.png.jpg) | ![Home](assets/screenshot_home.png.jpg) | ![Settings](assets/screenshot_settings.png.jpg) |
 
 ---
 
