@@ -47,7 +47,7 @@ fun AppNavHost() {
         composable(Routes.Permission) {
             PermissionScreen(
                 onGrantPermission = {
-                    navController.navigate("main") {
+                    navController.navigate("login") {
                         popUpTo("permission") { inclusive = true }
 
                     }
