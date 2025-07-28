@@ -38,7 +38,6 @@ fun ProfileScreen(
     val auth = FirebaseAuth.getInstance()
     val currentUser = auth.currentUser
     val context = LocalContext.current
-    val database = Firebase.database.reference
 
     // Fetch user data on first load
     LaunchedEffect(currentUser?.uid) {
