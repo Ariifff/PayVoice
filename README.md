@@ -25,7 +25,7 @@
 
 | Home Screen | Notification Announcement | Settings Page |
 |-------------|----------------------------|----------------|
-| ![Home](assets/screenshot_home.png) | ![Notification](assets/screenshot_notification.png) | ![Settings](assets/screenshot_settings.png) |
+| ![Home](assets/screenshot_home.png.jpg) | ![Notification](assets/screenshot_notification.png) | ![Settings](assets/screenshot_settings.png) |
 
 ---
 
