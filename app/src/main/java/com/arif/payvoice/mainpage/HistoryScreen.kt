@@ -13,10 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import com.arif.payvoice.ui.theme.Blue
-import com.arif.payvoice.ui.theme.Purple80
-import com.arif.payvoice.ui.theme.PurpleGrey80
 import com.arif.payvoice.ui.theme.SoftGray
-import com.arif.payvoice.ui.theme.TrustWorthyBlue
 import com.arif.payvoice.ui.theme.White
 
 
