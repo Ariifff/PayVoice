@@ -45,7 +45,7 @@
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/your-username/payvoice.git
+git clone https://github.com/Ariifff/payvoice.git
 cd payvoice
 ```
 
@@ -72,9 +72,7 @@ Foreground service to capture notifications in the background
 **Permission Purpose**
 
 POST_NOTIFICATIONS	To read UPI app notifications
-
 FOREGROUND_SERVICE	To run voice service in background
-
 INTERNET	For downloading voice model if needed
 
 🔒 Note: No sensitive data is collected or sent to servers. Everything remains on your device.
@@ -83,13 +81,10 @@ INTERNET	For downloading voice model if needed
 **Languages:**
 
 English 🇬🇧
-
 Hindi 🇮🇳
 
 **Voice Options:**
 
 Male
-
 Female
-
 All customizable via the Settings screen inside the app.
