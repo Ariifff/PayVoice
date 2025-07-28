@@ -55,6 +55,8 @@ cd payvoice
 
 4. Run the app on a device or emulator
 
+---
+
 ### 📐 Architecture
 MVVM (Model-View-ViewModel)
 
@@ -68,23 +70,33 @@ SharedPreferences for storing language & voice settings
 
 Foreground service to capture notifications in the background
 
+---
+
 ### 🔐 Permissions Used
 **Permission Purpose**
 
 POST_NOTIFICATIONS	To read UPI app notifications
+
 FOREGROUND_SERVICE	To run voice service in background
+
 INTERNET	For downloading voice model if needed
 
 🔒 Note: No sensitive data is collected or sent to servers. Everything remains on your device.
+
+---
 
 ### 🌍 Language & Voice Options
 **Languages:**
 
 English 🇬🇧
+
 Hindi 🇮🇳
 
 **Voice Options:**
 
 Male
+
 Female
 All customizable via the Settings screen inside the app.
+
+---
